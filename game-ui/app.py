@@ -1,11 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+import time
+from flask import Flask, render_template, request, redirect, url_for
 from math_game import MathGame
-import random
 
 app = Flask(__name__)
 
-# Store game instance globally (temporary; improve later with sessions)
-game_instance = None
+game_instance = None  # Store the game instance
+start_time = None  # Record when the game starts
 
 @app.route("/")
 def index():
@@ -13,58 +13,46 @@ def index():
 
 @app.route("/start", methods=["POST"])
 def start_game():
-    global game_instance
-    # Get and validate form inputs
-    try:
-        choose_game = int(request.form["choose_game"])
-        left_nbr = int(request.form["left_nbr"])
-        right_nbr = int(request.form["right_nbr"])
-        
-        if left_nbr < 1 or right_nbr < 1:
-            return "Error: Numbers must be greater than 0", 400
-    except (ValueError, KeyError):
-        return "Invalid input. Please go back and try again.", 400
-    
-    # Initialize the game
+    global game_instance, start_time
+    # Initialize the game instance (existing logic)
+    choose_game = int(request.form["choose_game"])
+    left_nbr = int(request.form["left_nbr"])
+    right_nbr = int(request.form["right_nbr"])
+    start_time = time.time()  # Record the start time
     game_instance = MathGame(choose_game, left_nbr, right_nbr)
     game_instance.setup_questions()
-    random.shuffle(game_instance.question_answers)
-    
-    # Redirect to the play page
     return redirect(url_for("play_game"))
 
 @app.route("/play", methods=["GET", "POST"])
 def play_game():
-    global game_instance
+    global game_instance, start_time
     if not game_instance:
         return redirect(url_for("index"))
-    
+
+    # Handle the gameplay logic
     if request.method == "POST":
-        # Process the user's answer
         user_answer = int(request.form["answer"])
         question_idx = int(request.form["question_idx"])
         question, correct_answer = game_instance.question_answers[question_idx]
-        
-        # Check the answer and update the score
         if user_answer == correct_answer:
             game_instance.score += 1
-        
-        # Move to the next question or end the game
+
         if question_idx + 1 < len(game_instance.question_answers):
-            next_question = question_idx + 1
-            return redirect(url_for("play_game", question_idx=next_question))
+            return redirect(url_for("play_game", question_idx=question_idx + 1))
         else:
             return redirect(url_for("game_over"))
-    
-    # Display the current question
+
+    # Pass the elapsed time to the frontend
+    elapsed_time = round(time.time() - start_time, 2)
     question_idx = int(request.args.get("question_idx", 0))
     question, _ = game_instance.question_answers[question_idx]
-    return render_template("play.html", question=question, question_idx=question_idx, score=game_instance.score)
+    return render_template("play.html", question=question, question_idx=question_idx, score=game_instance.score, elapsed_time=elapsed_time)
 
 @app.route("/game_over")
 def game_over():
-    global game_instance
-    return render_template("game_over.html", score=game_instance.score)
+    global game_instance, start_time
+    elapsed_time = round(time.time() - start_time, 2)
+    return render_template("game_over.html", score=game_instance.score, time_elapsed=elapsed_time)
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -7,8 +7,11 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+    <!-- Timer in the top-left corner -->
+    <div id="timer-container">
+        <p id="timer">Time: {{ elapsed_time }}s</p>
+    </div>
     <div class="game-container">
-        <h1>Math Game</h1>
         <p class="score">Score: {{ score }}</p>
         <form action="/play" method="post" id="answer-form">
             <p class="question">What is the answer to: {{ question }}?</p>
@@ -23,6 +26,20 @@
     <script>
         // Automatically focus on the answer input field
         document.getElementById("answer-input").focus();
+
+        // Timer logic with server-synced time
+        let timeElapsed = {{ elapsed_time }};
+        const timerElement = document.getElementById("timer");
+
+        const timer = setInterval(() => {
+            timeElapsed += 0.1; // Increment by 0.1 seconds for smooth updates
+            timerElement.textContent = `Time: ${timeElapsed.toFixed(1)}s`;
+        }, 100);
+        
+        // Stop the timer when the form is submitted
+        document.getElementById("answer-form").addEventListener("submit", () => {
+            clearInterval(timer);
+        });
     </script>
 </body>
 </html>

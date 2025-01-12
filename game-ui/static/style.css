@@ -79,3 +79,43 @@ a.exit-btn {
 a.exit-btn:hover {
     background-color: #c82333;
 }
+
+/* Timer in the top-left corner */
+#timer-container {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 1.2em;
+    background-color: #fff;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.game-container {
+    text-align: center;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 80%;
+    max-width: 500px;
+    margin: auto;
+    margin-top: 100px;
+}
+
+.question {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+
+input[type="number"] {
+    font-size: 1.5em;
+    padding: 10px;
+    width: 100%;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
